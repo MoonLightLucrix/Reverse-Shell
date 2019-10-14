@@ -3,9 +3,9 @@ it was not created for attacks of any kind.
 To run the program clone the repo.
 In the directory where there is clone,
 type the command 
-"make Reverse-Shell/src/ReverseShell", 
+"make Reverse-Shell/ReverseShell/src/ReverseShell", 
 then run it as 
-"Reverse-shell /src/ReverseShell",
+"Reverse-shell/ReverseShell/src/ReverseShell",
 type the port and open telnet from
 the shell of a another device. 
 It is strongly advised not to use 
