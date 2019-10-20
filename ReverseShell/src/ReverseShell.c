@@ -270,7 +270,6 @@ int calls(char*comando,int sockfd)
             close(STDERR);
             dup(fd);
         }
-        printf("\"%s\"\n",arguments[0]);
         if((execvp(arguments[0],arguments))==-1)
         {
             fprintf(stderr,"%s: \"%s\": ",program,arguments[0]);
@@ -362,7 +361,6 @@ void*connection(void*dummy)
         {
             buffer[strlen(buffer)-1]='\0';
         }
-        printf("\n\t%s %lu\n",buffer,strlen(buffer));
         if((!strcmp(buffer,"quit")) || (!strcmp(buffer,"q")) || (!strcmp(buffer,"QUIT")) || (!strcmp(buffer,"Q")))
         {
             break;
