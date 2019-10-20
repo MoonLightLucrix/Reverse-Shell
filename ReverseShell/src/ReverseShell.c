@@ -270,6 +270,7 @@ int calls(char*comando,int sockfd)
             close(STDERR);
             dup(fd);
         }
+        printf("\"%s\"\n",arguments[0]);
         if((execvp(arguments[0],arguments))==-1)
         {
             fprintf(stderr,"%s: \"%s\": ",program,arguments[0]);
@@ -349,11 +350,23 @@ void*connection(void*dummy)
                 return NULL;
             }
         }while(N==size);
-        if(buffer[size-1]=='\n')
+        if(size==0)
         {
-            buffer[size-2]='\0';
+            break;
+        }
+        else if(size==1)
+        {
+            continue;
+        }
+        if(buffer[strlen(buffer)-1]=='\n')
+        {
+            buffer[strlen(buffer)-1]='\0';
         }
         printf("\n\t%s %lu\n",buffer,strlen(buffer));
+        if((!strcmp(buffer,"quit")) || (!strcmp(buffer,"q")) || (!strcmp(buffer,"QUIT")) || (!strcmp(buffer,"Q")))
+        {
+            break;
+        }
         if((calls(buffer,newRemoteSockFd))==-1)
         {
             fprintf(stderr,"%s: ",program);
@@ -361,7 +374,10 @@ void*connection(void*dummy)
             free(buffer);
             return NULL;
         }
+        memset((char*)buffer,0,sizeof(buffer));
+        //printf("ciao\n");
     }
+    close(newRemoteSockFd);
     if(buffer)
     {
         free(buffer);
@@ -390,7 +406,7 @@ int server(int port)
         perror("");
         return -1;
     }
-    listen(localSockFd,1023);
+    listen(localSockFd,1000);
     while(true)
     {
         pthread_t connect;
