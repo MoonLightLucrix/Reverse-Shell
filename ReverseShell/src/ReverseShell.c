@@ -41,7 +41,7 @@ int calls(char*comando,int sockfd)
     char*arguments[N];
     int i=0;
     int fd;
-    int stds=false;
+    //int stds=false;
     pid_t pid;
     const char SQ[]="\'";
     const char DQ[]="\"";
@@ -320,12 +320,12 @@ int calls(char*comando,int sockfd)
 void*connection(void*dummy)
 {
     int newRemoteSockFd=remoteSockFd;
-    struct sockaddr_in newRemoteAddr=remoteAddr;
-    socklen_t newLength=length;
+    //struct sockaddr_in newRemoteAddr=remoteAddr;
+    //socklen_t newLength=length;
     char*buffer=(char*)malloc(N);
     char cwd[PATH_MAX];
     ssize_t size;
-    printf("%s: Client from: %s:%d connected, it's address is %u bytes long\n",program,inet_ntoa(newRemoteAddr.sin_addr),ntohs(newRemoteAddr.sin_port),newLength);
+    //printf("%s: Client from: %s:%d connected, it's address is %u bytes long\n",program,inet_ntoa(newRemoteAddr.sin_addr),ntohs(newRemoteAddr.sin_port),newLength);
     char*draw=(char*)malloc(N);
     sprintf(draw," ____  ____  _  _  ____  ____  ___  ____      ___  _   _  ____  __    __   \n(  _ \\( ___)( \\/ )( ___)(  _ \\/ __)( ___)___ / __)( )_( )( ___)(  )  (  )  \n )   / )__)  \\  /  )__)  )   /\\__ \\ )__)(___)\\__ \\ ) _ (  )__)  )(__  )(__ \n(_)\\_)(____)  \\/  (____)(_)\\_)(___/(____)    (___/(_) (_)(____)(____)(____)\n\n\n");
     write(newRemoteSockFd,draw,strlen(draw));
@@ -375,6 +375,7 @@ void*connection(void*dummy)
         memset((char*)buffer,0,sizeof(buffer));
         //printf("ciao\n");
     }
+    //printf("Chiudo lo socket\n");
     close(newRemoteSockFd);
     if(buffer)
     {
@@ -397,7 +398,7 @@ int server(int port)
     localAddr.sin_addr.s_addr=inet_addr("0.0.0.0");
     localAddr.sin_port=htons(port);
     //char*ip=inet_ntoa(*((struct in_addr*)host->h_addr_list[0]));
-    printf("%s: Wait for connection on port %d…\n",program,port);
+    //printf("%s: Wait for connection on port %d…\n",program,port);
     if((bind(localSockFd,(struct sockaddr*)&localAddr,sizeof(localAddr)))==-1)
     {
         fprintf(stderr,"%s: ",program);
@@ -415,7 +416,7 @@ int server(int port)
             perror("");
             return -1;
         }
-        pthread_create(&connect,NULL,(void*)&connection,NULL);
+        pthread_create(&connect,NULL,&connection,NULL);
     }
     close(localSockFd);
     return 0;
@@ -431,6 +432,7 @@ int main(int argc,char**argv)
 {
     extern int errno;
     strcpy(program,argv[0]);
+    int port=0;
     if(argc>=3)
     {
         printf("usage: %s <port>\n",program);
@@ -457,24 +459,30 @@ int main(int argc,char**argv)
             }
             break;
         }
-        int port=atoi(buffer);
+        port=atoi(buffer);
         if(buffer)
         {
             free(buffer);
         }
-        if((server(port))==-1)
-        {
-            exit(EXIT_FAILURE);
-        }
     }
     else if(argc==2)
     {
-        int port;
         port=atoi(argv[1]);
-        if((server(port))==-1)
-        {
-            exit(EXIT_FAILURE);
-        }
+    }
+    pid_t pid;
+    if((pid=fork())==-1)
+    {
+        fprintf(stderr,"%s: Can't create a new process\n",program);
+        perror("");
+        exit(EXIT_FAILURE);
+    }
+    if(pid)
+    {
+        exit(EXIT_SUCCESS);
+    }
+    if((server(port))==-1)
+    {
+        exit(EXIT_FAILURE);
     }
     exit(EXIT_SUCCESS);
 }

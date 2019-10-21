@@ -44,6 +44,7 @@ void*sending(void*data)
             break;
         }
 	}
+    printf("chiuso\n");
 	if(buffer)
 	{
 		free(buffer);
@@ -98,8 +99,8 @@ int client(char*inetAddr,int port)
 	info->remoteAddr.sin_port=htons(port);
 	connect(info->sockfd,(struct sockaddr*)&info->remoteAddr,sizeof(info->remoteAddr));
 	pthread_t th1,th2;
-	pthread_create(&th1,NULL,(void*)&sending,info);
-	pthread_create(&th2,NULL,(void*)&recive,info);
+	pthread_create(&th1,NULL,&sending,info);
+	pthread_create(&th2,NULL,&recive,info);
 	pthread_join(th1,NULL);
     pthread_cancel(th2);
 	close(info->sockfd);
@@ -114,8 +115,8 @@ int main(int argc,char**argv)
 {
 	extern int errno;
 	strcpy(program,argv[0]);
-	char*inetAddr;
-	int port;
+	char*inetAddr=NULL;
+	int port=0;
 	if(argc>=4)
 	{
 		printf("usage: %s <IP address> <port>\n",program);
@@ -127,7 +128,7 @@ int main(int argc,char**argv)
 		size_t length;
 		while(true)
 		{
-			printf("%s: IP address",program);
+			printf("%s: IP address ",program);
 			fgets(buffer,N,stdin);
 			if((length=strlen(buffer))==1)
 			{
@@ -142,7 +143,7 @@ int main(int argc,char**argv)
 		inetAddr=strdup(buffer);
 		while(true)
 		{
-			printf("%s: port",program);
+			printf("%s: port ",program);
 			fgets(buffer,N,stdin);
 			if((length=strlen(buffer))==1)
 			{

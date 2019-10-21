@@ -1,4 +1,4 @@
-CC = gcc
+C = gcc
 CFLAGS = -std=gnu99 -pedantic -pthread -Wall
 OBJECTS = ReverseShell.o Client.o
 
